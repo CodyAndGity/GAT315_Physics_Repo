@@ -1,51 +1,19 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
 
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
 
 #include "raylib.h"
 #include "raymath.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <vector>
-typedef struct Body {
-	Vector2 position;
-	Vector2 velocity;
-	Vector2 acceleration;
-	float mass;
-	float radius;
-	float restitution;
-	Color color;
-};
-//return 0-1
-float GetRandomFloat() {
-	return GetRandomValue(0, 10000) / 10000.0f;
-}
 
-void AddForce(Body& body, Vector2 force)
-{
-	body.acceleration += force * (1 / body.mass);
-}
+#include "World.h"
+#include "Body.h"
+#include "Integrator.h"
+#include "Random.h"
 
-void ExplicitEulerIntegrator(Body& body, float dt)
-{
-	body.position += body.velocity * dt;
-	body.velocity += body.acceleration * dt;
-}
-void SemiImplicitEulerIntegrator(Body& body, float dt)
-{
-	body.velocity += body.acceleration * dt;
-	body.position += body.velocity * dt;
-}
 
-Vector2 gravity = { 0,9.81f };
 int main()
 {
-	std::vector<Body>bodies;
-	bodies.reserve(1000);
+	World world;
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
@@ -81,86 +49,21 @@ int main()
 			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
 			body.color = randomColor;
 			body.mass = 1;
-			bodies.push_back(body);
+			world.AddBody(body);
 		}
 
 
 		//update
-		for (Body& body : bodies)
-		{
-			body.acceleration = { 0,0 };
-		}
-		for (Body& body : bodies)
-		{
-			AddForce(body, gravity * 100.0f);
-		}
-		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && IsKeyDown(KEY_TAB))
-		{
-			for (Body& body : bodies) {
-				Vector2 direction = body.position - mousePos;
-				if (Vector2Length(direction) <= 100.0f)
-				{
-					Vector2 force = Vector2Normalize(direction) * 10000.0f;
-					AddForce(body, force);
-				}
-
-
-			}
-			DrawCircleLinesV(mousePos, 100, WHITE);
-		}
-		else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-		{
-			for (Body& body : bodies) {
-				Vector2 direction = mousePos - body.position;
-				if (Vector2Length(direction) <= 100.0f)
-				{
-					Vector2 force = Vector2Normalize(direction) * 10000.0f;
-					AddForce(body, force);
-				}
-
-
-			}
-			DrawCircleLinesV(mousePos, 100, WHITE);
-		}
+		world.Step(dt);
+		
+		
 
 
 
-		for (Body& body : bodies)
-		{
-			SemiImplicitEulerIntegrator(body, dt);
+		
 
-		}
-
-		for (Body& body : bodies)
-		{
-
-
-
-
-			//screen collsions
-			if ((body.position.x + body.radius) > GetScreenWidth())
-			{
-				body.position.x = GetScreenWidth() - +body.radius;
-				body.velocity.x *= -body.restitution;
-			}
-			if ((body.position.x - body.radius) < 0)
-			{
-				body.position.x = body.radius;
-				body.velocity.x *= -body.restitution;
-			}
-
-			if ((body.position.y + body.radius) > GetScreenHeight())
-			{
-				body.position.y = GetScreenHeight() - +body.radius;
-				body.velocity.y *= -body.restitution;
-			}
-			/*if((body.position.y-body.radius) < 0)
-			{
-				body.position.y = body.radius;
-				body.velocity.y *= -body.restitution;
-			}*/
-		}
-
+		
+	
 		// drawing
 		BeginDrawing();
 
@@ -174,11 +77,8 @@ int main()
 		DrawTexture(wabbit, 400, 200, WHITE);
 
 		//draw bodies
-
-		for (const Body& body : bodies)
-		{
-			DrawCircleV(body.position, body.radius, body.color);
-		}
+		world.Draw();
+		
 
 
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
@@ -193,3 +93,5 @@ int main()
 	CloseWindow();
 	return 0;
 }
+
+
