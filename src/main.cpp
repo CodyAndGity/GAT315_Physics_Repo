@@ -18,6 +18,7 @@ typedef struct Body{
 	float mass;
 	float radius;
 	float restitution;
+	Color color;
 };
 //return 0-1
 float GetRandomFloat() {
@@ -58,6 +59,8 @@ int main ()
 			body.velocity = direction *(GetRandomFloat()*300+20);
 			body.radius = GetRandomFloat()*20+5;
 			body.restitution = 0.5f +(GetRandomFloat()*0.6f);
+			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
+			body.color = randomColor;
 			bodies.push_back(body);
 		}
 		//update
@@ -106,7 +109,7 @@ int main ()
 		
 		for (const Body& body : bodies)
 		{
-			DrawCircleV(body.position, body.radius, RED);
+			DrawCircleV(body.position, body.radius, body.color);
 		}
 
 		
