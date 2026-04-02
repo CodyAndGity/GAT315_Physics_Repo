@@ -13,6 +13,7 @@
 
 int main()
 {
+	bool clearScreen = true;
 	World world;
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -44,8 +45,8 @@ int main()
 			body.velocity = direction * (GetRandomFloat() * 300 + 20);
 			body.acceleration = { 0,0 };
 			body.radius = GetRandomFloat() * 20 + 5;
-			//body.restitution = 0.5f +(GetRandomFloat()*0.6f);
-			body.restitution = 0.9f;
+			body.restitution = 0.5f +(GetRandomFloat()*0.6f);
+			//body.restitution = 0.9f;
 			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
 			body.color = randomColor;
 			body.mass = 1;
@@ -55,20 +56,18 @@ int main()
 
 		//update
 		world.Step(dt);
-		
-		
-
-
-
-		
-
-		
+		if(IsKeyPressed(KEY_C))
+		{
+			clearScreen = !clearScreen;
+		}
 	
 		// drawing
 		BeginDrawing();
 
 		// Setup the back buffer for drawing (clear color and depth buffers)
-		ClearBackground(BLACK);
+		if (clearScreen) {
+			ClearBackground(BLACK);
+		}
 
 		// draw some text using the default font
 		DrawText("Hello Raylib", 200, 200, 20, WHITE);

@@ -8,7 +8,7 @@ class World
 public:
 	Vector2 gravity = { 0,9.81f };
 	std::vector<Body>bodies;
-
+	Vector2 mousePos = { 0,0 };
 	
 
 	void Step(float dt);

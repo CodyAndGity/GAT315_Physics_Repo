@@ -8,11 +8,26 @@ void World::Step(float dt)
 	for (Body& body : bodies)
 	{
 		body.acceleration = { 0,0 };
+		//body.acceleration /=2;
 	}
+	if (IsKeyDown(KEY_E)) {
+		for (Body& body : bodies) {
+			body.acceleration = { 100,0 };
+		}
+
+	}
+	if (IsKeyPressed(KEY_T)) {
+		for (Body& body : bodies) {
+			body.acceleration = {1/ body.acceleration.x, 1/ body.acceleration.y };
+		}
+
+	}
+	
+
 	for (Body& body : bodies)
 	{
-		//AddForce(body, gravity * 100.0f);
-		body.AddForce(gravity * 100.0f);
+		body.Step(dt);
+
 	}
 	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
@@ -41,6 +56,33 @@ void World::Step(float dt)
 		SemiImplicitEulerIntegrator(body, dt);
 
 	}
+	
+
+	if (IsKeyDown(KEY_Q)) {
+		for (Body& body : bodies) {
+			body.position = { 0,0 };
+		}
+
+	}
+	if (IsKeyDown(KEY_W)) {
+		for (Body& body : bodies) {
+			body.velocity = { 0,0 };
+		}
+
+	}
+	
+	if (IsKeyPressed(KEY_R)) {
+		//cycle negative, none, and positive gravity
+
+		if(gravity.y > 0)
+			gravity.y = 0;
+		else if (gravity.y == 0)
+			gravity.y = -9.81f;
+		else
+			gravity.y = 9.81f;
+
+	}
+
 }
 
 void World::Draw()
