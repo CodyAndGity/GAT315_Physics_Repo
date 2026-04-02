@@ -22,12 +22,11 @@ void World::Step(float dt)
 		}
 
 	}
-	
 
 	for (Body& body : bodies)
 	{
-		body.Step(dt);
-
+		//AddForce(body, gravity * 100.0f);
+		body.AddForce(gravity * 100.0f);
 	}
 	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
@@ -56,7 +55,11 @@ void World::Step(float dt)
 		SemiImplicitEulerIntegrator(body, dt);
 
 	}
-	
+	for (Body& body : bodies)
+	{
+		body.Step(dt);
+
+	}
 
 	if (IsKeyDown(KEY_Q)) {
 		for (Body& body : bodies) {
