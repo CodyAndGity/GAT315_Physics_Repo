@@ -23,11 +23,11 @@ void Body::Step(float dt)
 		this->velocity.y *= -this->restitution;
 	}
 	
-	/*if ((this->position.y - this->radius) < 0)
+	if ((this->position.y - this->radius) < 0)
 	{
 		this->position.y = this->radius;
 		this->velocity.y *= -this->restitution;
-	}*/
+	}
 }
 
 void Body::Draw()

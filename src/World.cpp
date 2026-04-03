@@ -22,6 +22,23 @@ void World::Step(float dt)
 		}
 
 	}
+	if (IsKeyDown(KEY_U)) {
+		for (Body& body : bodies) {
+			Vector2 direction;
+			
+			direction = body.position - mousePos;
+			
+			
+			if (Vector2Length(direction) <= 100.0f)
+			{
+				float length = Vector2Length(body.velocity);
+				body.velocity = Vector2Normalize(direction) * length;
+
+				
+			}
+		}
+
+	}
 
 	for (Body& body : bodies)
 	{
@@ -90,7 +107,7 @@ void World::Step(float dt)
 
 void World::Draw()
 {
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) 
+	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || IsKeyDown(KEY_U)) 
 	{
 		DrawCircleLinesV(mousePos, 100, WHITE);
 
