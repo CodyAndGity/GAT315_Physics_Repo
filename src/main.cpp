@@ -47,7 +47,7 @@ int main()
 			body.radius = GetRandomFloat() * 20 + 5;
 			body.restitution = 0.5f +(GetRandomFloat()*0.6f);
 			//body.restitution = 0.9f;
-			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),128 };
+			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
 			body.color = randomColor;
 			body.mass = 1;
 			world.AddBody(body);
