@@ -4,17 +4,17 @@
 #include "raymath.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <vector>
+#include <string>
 
 #include "World.h"
 #include "Body.h"
 #include "Integrator.h"
 #include "Random.h"
-
+#include "PointEffector.h"
 
 int main()
 {
-	bool clearScreen = true;
-	World world;
+	
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
@@ -26,6 +26,15 @@ int main()
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
+
+	//SetTargetFPS(60);
+
+	bool clearScreen = true;
+	World world;
+	world.AddEffector(new PointEffector({ 600,300 }, 100.0f, -10000.0f));
+	world.AddEffector(new PointEffector({ 300,600 }, 100.0f, 10000.0f));
+	float timeAccumulator = 0.0f;
+	float fixedTimeStep = 1.0f / 60.0f;
 
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
@@ -45,17 +54,28 @@ int main()
 			body.velocity = direction * (GetRandomFloat() * 300 + 20);
 			body.acceleration = { 0,0 };
 			body.radius = GetRandomFloat() * 20 + 5;
-			body.restitution = 0.5f +(GetRandomFloat()*0.6f);
-			//body.restitution = 0.9f;
+			//body.restitution = 0.5f +(GetRandomFloat()*0.6f);
+			body.restitution = 0.9f;
 			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
 			body.color = randomColor;
 			body.mass = 1;
+			body.gravityScale = 0;
+			body.damping = 0.1f;
 			world.AddBody(body);
 		}
 
 
 		//update
-		world.Step(dt);
+		timeAccumulator += dt;
+
+		while (timeAccumulator >= fixedTimeStep) {
+
+			world.Step(fixedTimeStep);
+			timeAccumulator -= fixedTimeStep;
+
+		}
+
+
 		if(IsKeyPressed(KEY_C))
 		{
 			clearScreen = !clearScreen;
@@ -70,10 +90,11 @@ int main()
 		}
 
 		// draw some text using the default font
-		DrawText("Hello Raylib", 200, 200, 20, WHITE);
+		std::string fpsText = "FPS: ";
+		fpsText+= std::to_string(GetFPS());
+		DrawText(fpsText.c_str(), 100, 100, 20, WHITE);
 
-		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
+		
 
 		//draw bodies
 		world.Draw();

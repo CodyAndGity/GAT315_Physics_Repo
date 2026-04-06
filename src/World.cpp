@@ -1,14 +1,14 @@
 #include "World.h"
 #include "raymath.h"
 #include "Integrator.h"
+#include "Effector.h"
 void World::Step(float dt)
 {
 	
 	mousePos = GetMousePosition();
 	for (Body& body : bodies)
 	{
-		body.acceleration = { 0,0 };
-		//body.acceleration /=2;
+		body.acceleration = gravity*body.gravityScale*100.0f;
 	}
 	if (IsKeyDown(KEY_E)) {
 		for (Body& body : bodies) {
@@ -40,11 +40,13 @@ void World::Step(float dt)
 
 	}
 
-	for (Body& body : bodies)
+	
+	//fore effector
+	for(auto& effector:effectors)
 	{
-		//AddForce(body, gravity * 100.0f);
-		body.AddForce(gravity * 100.0f);
+		effector->Apply(bodies);
 	}
+	/*
 	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
 		for (Body& body : bodies) {
@@ -53,7 +55,8 @@ void World::Step(float dt)
 				//push
 				direction = body.position - mousePos;
 			}
-			else {
+			else 
+			{
 				//pull
 				direction = mousePos - body.position;
 			}
@@ -62,11 +65,9 @@ void World::Step(float dt)
 				Vector2 force = Vector2Normalize(direction) * 10000.0f;
 				body.AddForce(force);
 			}
-
-
-		}
-		
+		}		
 	}
+	*/
 	for (Body& body : bodies)
 	{
 		SemiImplicitEulerIntegrator(body, dt);
@@ -116,6 +117,10 @@ void World::Draw()
 	{
 		body.Draw();
 	}
+	for (auto& effector : effectors)
+	{
+		effector->Draw();
+	}
 
 
 }
@@ -124,4 +129,9 @@ void World::AddBody(const Body& body)
 {
 	bodies.push_back(body);
 
+}
+
+void World::AddEffector(Effector* effector)
+{
+	effectors.push_back(effector);
 }
