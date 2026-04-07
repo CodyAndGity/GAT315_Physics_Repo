@@ -11,6 +11,7 @@
 #include "Integrator.h"
 #include "Random.h"
 #include "PointEffector.h"
+#include "GravitationalEffector.h"
 
 int main()
 {
@@ -31,8 +32,9 @@ int main()
 
 	bool clearScreen = true;
 	World world;
-	world.AddEffector(new PointEffector({ 600,300 }, 100.0f, -10000.0f));
-	world.AddEffector(new PointEffector({ 300,600 }, 100.0f, 10000.0f));
+	//world.AddEffector(new PointEffector({ 600,300 }, 100.0f, -10000.0f));
+	//world.AddEffector(new PointEffector({ 300,600 }, 100.0f, 10000.0f));
+	world.AddEffector(new GravitationalEffector(10000.0f));
 	float timeAccumulator = 0.0f;
 	float fixedTimeStep = 1.0f / 60.0f;
 
@@ -58,7 +60,8 @@ int main()
 			body.restitution = 0.9f;
 			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
 			body.color = randomColor;
-			body.mass = 1;
+			//body.mass = 1;
+			body.mass = body.radius;
 			body.gravityScale = 0;
 			body.damping = 0.1f;
 			world.AddBody(body);
