@@ -2,42 +2,37 @@
 
 #include "raymath.h"
 
-void Body::Step(float dt)
-{
-	//this->AddForce(gravity * 100.0f);
-	//screen collsions
-	if ((this->position.x + this->radius) > GetScreenWidth())
-	{
-		this->position.x = GetScreenWidth() - this->radius;
-		this->velocity.x *= -this->restitution;
-	}
-	if ((this->position.x - this->radius) < 0)
-	{
-		this->position.x = this->radius;
-		this->velocity.x *= -this->restitution;
-	}
 
-	if ((this->position.y + this->radius) > GetScreenHeight())
-	{
-		this->position.y = GetScreenHeight() - this->radius;
-		this->velocity.y *= -this->restitution;
-	}
-	
-	if ((this->position.y - this->radius) < 0)
-	{
-		this->position.y = this->radius;
-		this->velocity.y *= -this->restitution;
-	}
-}
 
 void Body::Draw()
 {
 	DrawCircleV(this->position, this->radius, this->color);
+	DrawCircleLinesV(this->position, this->radius, WHITE);
 
 }
 
-void Body::AddForce(Vector2 force)
+void Body::AddForce(Vector2 force, ForceMode mode)
 {
-	this->acceleration += force * (1 / this->mass);
+
+	if(bodyType != BodyType::Dynamic)
+		return;
+
+	switch (mode)
+	{
+	case ForceMode::Force:
+		acceleration += force * inverseMass;
+		break;
+	case ForceMode::Impulse:
+		velocity += force * inverseMass;
+		break;
+	case ForceMode::Acceleration:
+		acceleration += force;
+		break;
+	case ForceMode::VelocityChange:
+		velocity += force;
+		break;
+	default:
+		break;
+	}
 
 }

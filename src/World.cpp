@@ -2,13 +2,25 @@
 #include "raymath.h"
 #include "Integrator.h"
 #include "Effector.h"
+#include "Collision.h"
+
 void World::Step(float dt)
 {
 	
 	mousePos = GetMousePosition();
+
+
 	for (Body& body : bodies)
 	{
-		body.acceleration = gravity*body.gravityScale*100.0f;
+		
+		body.acceleration = { 0,0 };
+		
+	}
+	for (Body& body : bodies)
+	{
+		if (body.bodyType != BodyType::Static) {
+			body.AddForce(gravity * body.gravityScale * 100.0f, ForceMode::Acceleration);
+		}
 	}
 	if (IsKeyDown(KEY_E)) {
 		for (Body& body : bodies) {
@@ -46,38 +58,17 @@ void World::Step(float dt)
 	{
 		effector->Apply(bodies);
 	}
-	/*
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-	{
-		for (Body& body : bodies) {
-			Vector2 direction;
-			if (IsKeyDown(KEY_TAB)) {
-				//push
-				direction = body.position - mousePos;
-			}
-			else 
-			{
-				//pull
-				direction = mousePos - body.position;
-			}
-			if (Vector2Length(direction) <= 100.0f)
-			{
-				Vector2 force = Vector2Normalize(direction) * 10000.0f;
-				body.AddForce(force);
-			}
-		}		
-	}
-	*/
+	
 	for (Body& body : bodies)
 	{
-		SemiImplicitEulerIntegrator(body, dt);
+		if (body.bodyType == BodyType::Dynamic) {
+			SemiImplicitEulerIntegrator(body, dt);
+		}
 
 	}
-	for (Body& body : bodies)
-	{
-		body.Step(dt);
 
-	}
+	//handle screen bounds
+	HandleCollisions();
 
 	if (IsKeyDown(KEY_Q)) {
 		for (Body& body : bodies) {
@@ -134,4 +125,40 @@ void World::AddBody(const Body& body)
 void World::AddEffector(Effector* effector)
 {
 	effectors.push_back(effector);
+}
+
+void World::HandleCollisions()
+{
+	contacts.clear();
+	
+	Contact::CreateContacts(bodies, contacts);
+	Contact::SeparateContacts(contacts);
+	for (Body& body : bodies)
+	{
+		//screen collisions
+		if ((body.position.x + body.radius) > GetScreenWidth())
+		{
+			body.position.x = GetScreenWidth() - body.radius;
+			body.velocity.x *= -body.restitution;
+		}
+		if ((body.position.x - body.radius) < 0)
+		{
+			body.position.x = body.radius;
+			body.velocity.x *= -body.restitution;
+		}
+
+		if ((body.position.y + body.radius) > GetScreenHeight())
+		{
+			body.position.y = GetScreenHeight() - body.radius;
+			body.velocity.y *= -body.restitution;
+		}
+
+		if ((body.position.y - body.radius) < 0)
+		{
+			body.position.y = body.radius;
+			body.velocity.y *= -body.restitution;
+		}
+
+	}
+
 }

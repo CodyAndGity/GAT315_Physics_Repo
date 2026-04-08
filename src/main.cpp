@@ -34,7 +34,7 @@ int main()
 	World world;
 	//world.AddEffector(new PointEffector({ 600,300 }, 100.0f, -10000.0f));
 	//world.AddEffector(new PointEffector({ 300,600 }, 100.0f, 10000.0f));
-	world.AddEffector(new GravitationalEffector(10000.0f));
+	//world.AddEffector(new GravitationalEffector(1000.0f));
 	float timeAccumulator = 0.0f;
 	float fixedTimeStep = 1.0f / 60.0f;
 
@@ -46,6 +46,9 @@ int main()
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || (IsKeyDown(KEY_LEFT_CONTROL) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
 		{
 			Body body;
+
+			body.bodyType = (IsKeyDown(KEY_LEFT_ALT)) ? BodyType::Static: BodyType::Dynamic;
+
 			body.position = mousePos;
 			float angle = GetRandomFloat() * 2.0f * PI;
 			//get random unit circle vector
@@ -53,16 +56,22 @@ int main()
 			direction.x = cosf(angle);
 			direction.y = sinf(angle);
 
-			body.velocity = direction * (GetRandomFloat() * 300 + 20);
+			//body.AddForce(direction * (GetRandomFloat() * 500 + 50), ForceMode::VelocityChange);
+
+			
+
+
 			body.acceleration = { 0,0 };
-			body.radius = GetRandomFloat() * 20 + 5;
+			body.radius = GetRandomFloat() * 30 + 5;
 			//body.restitution = 0.5f +(GetRandomFloat()*0.6f);
 			body.restitution = 0.9f;
 			Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
 			body.color = randomColor;
 			//body.mass = 1;
 			body.mass = body.radius;
-			body.gravityScale = 0;
+			body.inverseMass =(body.bodyType==BodyType::Static) ?0:    1.0f/ body.mass;
+			//body.gravityScale = 1;
+			body.gravityScale = 0.0f;
 			body.damping = 0.1f;
 			world.AddBody(body);
 		}
