@@ -133,6 +133,7 @@ void World::HandleCollisions()
 	
 	Contact::CreateContacts(bodies, contacts);
 	Contact::SeparateContacts(contacts);
+	Contact::ResolveContacts(contacts);
 	for (Body& body : bodies)
 	{
 		//screen collisions
