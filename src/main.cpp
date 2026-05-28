@@ -87,25 +87,25 @@ int main()
 			{
 				if (IsKeyDown(KEY_LEFT_SHIFT))
 				{
-					AddEffector(mousePos, world);
+					AddEffector(mousePos, world, world_camera);
 				}
 				else
 				{
-					AddBody(mousePos, world);
+					AddBody(mousePos, world,world_camera);
 				}
 			} 
 			if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
 				//world camrea.Screen to world (mouse pos_)
-				selectedBody = world.GetBodyIntersect(mousePos);
+				selectedBody = world.GetBodyIntersect(world_camera.ScreenToWorld(mousePos));
 			}
 			if (selectedBody) {
 				if (IsKeyDown(KEY_LEFT_CONTROL)) {
-					Vector2 position = mousePos;//wormd camrea Screen to world(mouse pos);
-					Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f,300.0f);
-					selectedBody->AddForce(force);
+					Vector2 position = world_camera.ScreenToWorld(mousePos);
+					Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f,3.0f);
+					selectedBody->AddForce(force,ForceMode::VelocityChange);
 				}
 				
-				DrawLineV(selectedBody->position, mousePos, GREEN);//world cmarea, words camre world to screen
+				DrawLineV(selectedBody->position, world_camera.ScreenToWorld(mousePos), GREEN);//world cmarea, words camre world to screen
 			}
 
 		}
