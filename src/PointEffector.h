@@ -5,14 +5,14 @@ class PointEffector : public Effector
 public:
 
 	PointEffector(Vector2 position, float size, float forceMagnitude)
-		: position(position), size(size), forceMagnitude(forceMagnitude)
-	{	}
+		: Effector(position, size), forceMagnitude(forceMagnitude)
+	{
+	}
 
 	// Inherited via Effector
-	void Apply(std::vector<Body>& bodies) override;
-	void Draw();
+	void Apply(std::vector<Body>& ibodies) override;
+	void Draw() override;
 private:
-	Vector2 position;
-	float size;
+
 	float forceMagnitude;
 };

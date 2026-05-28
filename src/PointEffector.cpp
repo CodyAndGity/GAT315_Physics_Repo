@@ -1,20 +1,19 @@
 #include "PointEffector.h"
 #include "raymath.h"
-void PointEffector::Apply(std::vector<Body>& bodies)
+void PointEffector::Apply(std::vector<Body>& ibodies)
 {
-	for (Body& body : bodies) {
-
-		Vector2 direction = body.position - position;
-
-		if (Vector2Length(direction) <= size)
-		{
-			Vector2 force = Vector2Normalize(direction) * forceMagnitude;;
-			body.AddForce(force);
-		}
-
-
+	std::vector<Body*> bodies;
+	CollectBodiesInside(ibodies, bodies);
+	for (auto& body : bodies) 
+	{
+		Vector2 direction = position- body->position;
+		//DrawLine(position.x, position.y, body->position.x, body->position.y, GREEN);//Fade(RED, 0.2f));
+		Vector2 force = Vector2Normalize(direction) * forceMagnitude;
+		body->AddForce(force);
 	}
 }
 void PointEffector::Draw() {
-	DrawCircleLinesV(position, size, WHITE);
+	Effector::Draw();
+	DrawCircleV(position, size, Fade(RED, 0.2f));
+
 }

@@ -6,20 +6,15 @@
 
 void World::Step(float dt)
 {
-	
+
 	mousePos = GetMousePosition();
 
 
-	for (Body& body : bodies)
-	{
-		
-		body.acceleration = { 0,0 };
-		
-	}
+	
 	for (Body& body : bodies)
 	{
 		if (body.bodyType != BodyType::Static) {
-			body.AddForce(gravity * body.gravityScale * 100.0f, ForceMode::Acceleration);
+			body.AddForce(gravity * body.gravityScale, ForceMode::Acceleration);
 		}
 	}
 	if (IsKeyDown(KEY_E)) {
@@ -30,35 +25,35 @@ void World::Step(float dt)
 	}
 	if (IsKeyPressed(KEY_T)) {
 		for (Body& body : bodies) {
-			body.acceleration = {1/ body.acceleration.x, 1/ body.acceleration.y };
+			body.acceleration = { 1 / body.acceleration.x, 1 / body.acceleration.y };
 		}
 
 	}
 	if (IsKeyDown(KEY_U)) {
 		for (Body& body : bodies) {
 			Vector2 direction;
-			
+
 			direction = body.position - mousePos;
-			
-			
+
+
 			if (Vector2Length(direction) <= 100.0f)
 			{
 				float length = Vector2Length(body.velocity);
 				body.velocity = Vector2Normalize(direction) * length;
 
-				
+
 			}
 		}
 
 	}
 
-	
+
 	//fore effector
-	for(auto& effector:effectors)
+	for (auto& effector : effectors)
 	{
 		effector->Apply(bodies);
 	}
-	
+
 	for (Body& body : bodies)
 	{
 		if (body.bodyType == BodyType::Dynamic) {
@@ -68,7 +63,11 @@ void World::Step(float dt)
 	}
 
 	//handle screen bounds
-	HandleCollisions();
+	for (size_t i = 0; i < 4; i++)
+	{
+		HandleCollisions();
+	}
+
 
 	if (IsKeyDown(KEY_Q)) {
 		for (Body& body : bodies) {
@@ -82,11 +81,11 @@ void World::Step(float dt)
 		}
 
 	}
-	
+
 	if (IsKeyPressed(KEY_R)) {
 		//cycle negative, none, and positive gravity
 
-		if(gravity.y > 0)
+		if (gravity.y > 0)
 			gravity.y = 0;
 		else if (gravity.y == 0)
 			gravity.y = -9.81f;
@@ -95,11 +94,22 @@ void World::Step(float dt)
 
 	}
 
+	for (Body& body : bodies)
+	{
+
+		body.acceleration = { 0,0 };
+
+	}
+
 }
 
 void World::Draw()
 {
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || IsKeyDown(KEY_U)) 
+	for (auto& effector : effectors)
+	{
+		effector->Draw();
+	}
+	if (IsKeyDown(KEY_U))
 	{
 		DrawCircleLinesV(mousePos, 100, WHITE);
 
@@ -107,10 +117,6 @@ void World::Draw()
 	for (Body& body : bodies)
 	{
 		body.Draw();
-	}
-	for (auto& effector : effectors)
-	{
-		effector->Draw();
 	}
 
 
@@ -130,36 +136,48 @@ void World::AddEffector(Effector* effector)
 void World::HandleCollisions()
 {
 	contacts.clear();
-	
+
 	Contact::CreateContacts(bodies, contacts);
 	Contact::SeparateContacts(contacts);
 	Contact::ResolveContacts(contacts);
 	for (Body& body : bodies)
 	{
 		//screen collisions
-		if ((body.position.x + body.radius) > GetScreenWidth())
+		if ((body.position.x + body.radius) > boundsMax.x)
 		{
-			body.position.x = GetScreenWidth() - body.radius;
+			body.position.x = boundsMax.x - body.radius;
 			body.velocity.x *= -body.restitution;
 		}
-		if ((body.position.x - body.radius) < 0)
+		if ((body.position.x - body.radius) < boundsMin.x)
 		{
-			body.position.x = body.radius;
+			body.position.x = boundsMin.x + body.radius;
 			body.velocity.x *= -body.restitution;
 		}
 
-		if ((body.position.y + body.radius) > GetScreenHeight())
+		if ((body.position.y + body.radius) > boundsMax.y)
 		{
-			body.position.y = GetScreenHeight() - body.radius;
+			body.position.y = boundsMax.y - body.radius;
 			body.velocity.y *= -body.restitution;
 		}
 
-		if ((body.position.y - body.radius) < 0)
+		if ((body.position.y - body.radius) < boundsMin.y)
 		{
-			body.position.y = body.radius;
+			body.position.y = boundsMin.y + body.radius;
 			body.velocity.y *= -body.restitution;
 		}
 
 	}
 
+}
+
+Body* World::GetBodyIntersect(Vector2 position)
+{
+	for (Body& body : bodies)
+	{
+		if (CheckCollisionPointCircle(position, body.position, body.radius))
+		{
+			return &body;
+		}
+	}
+	return nullptr;
 }
