@@ -1,5 +1,6 @@
 #pragma once
-#include <raymath.h>
+#include "raylib.h"
+#include "raymath.h"
 struct Body;
 class Spring
 {
@@ -9,11 +10,12 @@ public:
 
 	float restLength;
 	float stiffness;
+	float damping;
 
 public:
 	Spring() = default;
-	Spring(Body* bodyA, Body* bodyB, float restLength = 1, float stiffness = 1) :
-		bodyA{ bodyA }, bodyB{ bodyB }, restLength{ restLength }, stiffness{ stiffness }
+	Spring(Body* bodyA, Body* bodyB, float restLength = 1, float stiffness = 1, float damping = 0.1f) :
+		bodyA{ bodyA }, bodyB{ bodyB }, restLength{ restLength }, stiffness{ stiffness }, damping{ damping }
 	{
 	}
 	void Apply(float multiplier=1);

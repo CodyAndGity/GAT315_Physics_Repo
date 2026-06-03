@@ -80,6 +80,7 @@ int main()
 
 
 		world.gravity = { 0,state.GravityValue };
+		world.springMultiplier =state.SpringMultiplierValue ;
 		bool isMouseOverGui = state.PhysicsPanelActive && CheckCollisionPointRec(mousePos, Rectangle{ state.anchor02.x + 0, state.anchor02.y + 0, 304, 664 });
 		if (!isMouseOverGui) {
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
@@ -98,14 +99,32 @@ int main()
 				//world camrea.Screen to world (mouse pos_)
 				selectedBody = world.GetBodyIntersect(world_camera.ScreenToWorld(mousePos));
 			}
+
+
+
 			if (selectedBody) {
-				if (IsKeyDown(KEY_LEFT_CONTROL)) {
-					Vector2 position = world_camera.ScreenToWorld(mousePos);
-					Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f,3.0f);
-					selectedBody->AddForce(force,ForceMode::VelocityChange);
+				if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+					if (IsKeyDown(KEY_LEFT_CONTROL)) {
+						Vector2 position = world_camera.ScreenToWorld(mousePos);
+						Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f, 1.0f);
+						selectedBody->AddForce(force, ForceMode::VelocityChange);
+					}
+					else {
+						connectedBody = world.GetBodyIntersect(world_camera.ScreenToWorld(mousePos));
+
+					}
+					DrawLineV(selectedBody->position, world_camera.ScreenToWorld(mousePos), GREEN);
+
 				}
-				
-				DrawLineV(selectedBody->position, world_camera.ScreenToWorld(mousePos), GREEN);//world cmarea, words camre world to screen
+				else {
+					if(selectedBody && connectedBody && selectedBody != connectedBody)
+					{
+						float distance = (state.SpringAutoLengthChecked)? Vector2Distance(selectedBody->position, connectedBody->position):state.SpringLengthValue;
+						world.AddSpring(*selectedBody, *connectedBody, distance, state.SpringStiffnessValue,state.SpringDampingValue);
+					}
+					selectedBody = nullptr;
+					connectedBody = nullptr;
+				}
 			}
 
 		}
@@ -157,6 +176,9 @@ int main()
 		if (selectedBody) {
 			DrawCircleLinesV(selectedBody->position, selectedBody->radius*1.05f, RED);
 		}
+		if (connectedBody) {
+			DrawCircleLinesV(connectedBody->position, connectedBody->radius*1.05f, GREEN);
+		}
 		
 		world_camera.End(); // remove world camera
 		
@@ -202,7 +224,7 @@ void AddBody(Vector2& mousePos, World& world, WorldCamera& camera) {
 	body.radius = state.BodySizeValue;
 	//body.restitution = 0.5f +(GetRandomFloat()*0.6f);
 	body.restitution = state.BodyRestitutionValue;
-	Color randomColor = { GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
+	Color randomColor = ColorFromHSV(GetRandomValue(0, 360), 1.0f, 1.0f);//{ GetRandomValue(0,255),GetRandomValue(0,255),GetRandomValue(0,255),255 };
 	body.color = randomColor;
 	//body.mass = 1;
 	body.mass = body.radius * state.BodyMassValue;
