@@ -108,12 +108,13 @@ int main()
 						Vector2 position = world_camera.ScreenToWorld(mousePos);
 						Vector2 force = Spring::GetSpringForce(position, selectedBody->position, 1.0f, 1.0f);
 						selectedBody->AddForce(force, ForceMode::VelocityChange);
+
 					}
 					else {
 						connectedBody = world.GetBodyIntersect(world_camera.ScreenToWorld(mousePos));
 
 					}
-					DrawLineV(selectedBody->position, world_camera.ScreenToWorld(mousePos), GREEN);
+					//DrawLineV(selectedBody->position, world_camera.ScreenToWorld(mousePos), GREEN);
 
 				}
 				else {
@@ -174,6 +175,10 @@ int main()
 		
 		DrawCircleLinesV(world_camera.ScreenToWorld(mousePos), state.BodySizeValue, BLUE);
 		if (selectedBody) {
+			if (IsKeyDown(KEY_LEFT_CONTROL)) {
+				DrawLineV(selectedBody->position, world_camera.ScreenToWorld(mousePos), GREEN);
+
+			}
 			DrawCircleLinesV(selectedBody->position, selectedBody->radius*1.05f, RED);
 		}
 		if (connectedBody) {
