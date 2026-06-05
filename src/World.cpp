@@ -17,7 +17,7 @@ void World::Step(float dt)
 			body.AddForce(gravity * body.gravityScale, ForceMode::Acceleration);
 		}
 	}
-	if (IsKeyDown(KEY_E)) {
+	/*if (IsKeyDown(KEY_E)) {
 		for (Body& body : bodies) {
 			body.acceleration = { 100,0 };
 		}
@@ -45,7 +45,7 @@ void World::Step(float dt)
 			}
 		}
 
-	}
+	}*/
 
 
 	//fore effector
@@ -53,7 +53,7 @@ void World::Step(float dt)
 	{
 		effector->Apply(bodies);
 	}
-	
+
 	for (auto& spring : springs)
 	{
 		spring->Apply(springMultiplier);
@@ -76,7 +76,9 @@ void World::Step(float dt)
 
 	if (IsKeyDown(KEY_Q)) {
 		for (Body& body : bodies) {
-			body.position = { 0,0 };
+			if (body.bodyType != BodyType::Static) {
+				body.position = { 0,0 };
+			}
 		}
 
 	}
@@ -87,17 +89,17 @@ void World::Step(float dt)
 
 	}
 
-	if (IsKeyPressed(KEY_R)) {
-		//cycle negative, none, and positive gravity
+	//if (IsKeyPressed(KEY_R)) {
+	//	//cycle negative, none, and positive gravity
 
-		if (gravity.y > 0)
-			gravity.y = 0;
-		else if (gravity.y == 0)
-			gravity.y = -9.81f;
-		else
-			gravity.y = 9.81f;
+	//	if (gravity.y > 0)
+	//		gravity.y = 0;
+	//	else if (gravity.y == 0)
+	//		gravity.y = -9.81f;
+	//	else
+	//		gravity.y = 9.81f;
 
-	}
+	//}
 
 	for (Body& body : bodies)
 	{
@@ -112,29 +114,29 @@ void World::Draw()
 {
 	//vertical lines
 	DrawLineV(Vector2{ 0, boundsMin.x }, Vector2{ 0, boundsMax.y }, WHITE);
-	for (float x = 1; x < (boundsMax.x - boundsMin.x)*.5f; x += 1)
+	for (float x = 1; x < (boundsMax.x - boundsMin.x) * .5f; x += 1)
 	{
 		DrawLineV(Vector2{ x, boundsMin.x }, Vector2{ x, boundsMax.y }, GRAY);
 		DrawLineV(Vector2{ -x, boundsMin.x }, Vector2{ -x, boundsMax.y }, GRAY);
 	}
 	//horizontal lines
 	DrawLineV(Vector2{ boundsMin.x,0 }, Vector2{ boundsMax.x,0 }, WHITE);
-	for (float y = 1; y < (boundsMax.y - boundsMin.y)*.5f; y += 1)
+	for (float y = 1; y < (boundsMax.y - boundsMin.y) * .5f; y += 1)
 	{
 		DrawLineV(Vector2{ boundsMin.x, y }, Vector2{ boundsMax.x, y }, GRAY);
 		DrawLineV(Vector2{ boundsMin.x, -y }, Vector2{ boundsMax.x, -y }, GRAY);
 	}
-	
+
 
 	for (auto& effector : effectors)
 	{
 		effector->Draw();
 	}
-	if (IsKeyDown(KEY_U))
+	/*if (IsKeyDown(KEY_U))
 	{
 		DrawCircleLinesV(mousePos, 100, WHITE);
 
-	}
+	}*/
 	for (Body& body : bodies)
 	{
 		body.Draw();
@@ -160,7 +162,7 @@ void World::AddEffector(Effector* effector)
 
 void World::AddSpring(Body& bodyA, Body& bodyB, float restLength, float stiffness, float damping)
 {
-	Spring* spring = new Spring(&bodyA, &bodyB, restLength, stiffness,damping);
+	Spring* spring = new Spring(&bodyA, &bodyB, restLength, stiffness, damping);
 	springs.push_back(spring);
 }
 
